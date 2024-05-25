@@ -1,11 +1,7 @@
 import {
-  system,
   world,
 } from '@minecraft/server';
 import LZString from './lz-string';
-import { DynamicPropertyDatabase } from './dynamicPropertyDb';
-import * as MC from '@minecraft/server';
-import { prismarineDb } from './lib/@trash/PrismarineDB/prismarine-db';
 // import { databaseProgressBar } from './conf_db';
 // export class ExtendedMap extends Map {
 //     constructor(dbName) {
@@ -157,7 +153,6 @@ function MergeRecursive(obj1, obj2) {
     return obj1;
 }
 
-const tables = {};
 // if you dont want a shit ton of data to go unused, used hardDelete() and hardSet() instead of set() and delete()
 let cache = new Map();
 // export class Database {
@@ -167,7 +162,6 @@ let cache = new Map();
 //         })
 //     }
 // }
-let legacyDb = prismarineDb.table("Legacy-Scoreboard-DB");
 // legacyDb.clear();
 // export class Database {
 //     constructor(table, compressed = false) {
@@ -291,7 +285,6 @@ export class ScoreboardDatabase {
         // system.run(() => {
             let val = _val;
             let key = _key;
-            let tableVars_ = this.tableVars;
             if (typeof _val === "object") {
                 val = `OBJECT:${JSON.stringify(_val)}`;
             } else if(typeof _val === "number") {
@@ -300,7 +293,6 @@ export class ScoreboardDatabase {
                 val = `BOOL:${_val ? 1 : 0}`;
             }
             if(this.compressed) val = LZString.compress(val);
-            let overworld = world.getDimension('overworld');
             let scoreboard = world.scoreboard.getObjective(`db-${this.table}`);
             scoreboard.setScore(`${key}-L`, val.length);
             // overworld.runCommand(`scoreboard players set "${key}-L" "db-${this.table}" ${val.length}`);
@@ -372,7 +364,6 @@ export class ScoreboardDatabase {
         let lenParticipant = participants.find(_ => _.displayName == `${key}-L`);
         if (!lenParticipant) return defaultResult;
 
-        let len = objective.getScore(lenParticipant);
 
         let valParticipants = participants
             .filter(_ => _.displayName.startsWith(`${key}-`) && !_.displayName.endsWith('L'))
@@ -512,19 +503,6 @@ export class ScoreboardDatabase {
     }
 }
 export const Database = ScoreboardDatabase;
-function textToHex(text) {
-    return text.split("").map((char) => {
-        return char.charCodeAt(0).toString(16);
-    }).join(" ");
-}
-/**
- * Convert Hexadecimal to string
- */
-function hexToText(hex) {
-    return hex.split(" ").map((char) => {
-        return String.fromCharCode(parseInt(char, 16));
-    }).join("");
-}
 // export class Database {
 //     constructor(table) {
 //         this.table = table;
