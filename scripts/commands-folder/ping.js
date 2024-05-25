@@ -5,11 +5,10 @@ export default function addPingCommand(commands) {
         description: "Says pong",
         category: "Fun",
         author: "ZSStudios",
-        onRun(msg, args, theme, response, commands, prefix) {
-            let prevTick = system.currentTick
+        onRun(response) {
             system.runTimeout(()=>{
                 let currentTick = system.currentTick
-                // TODO: Fix whatever the fuck this is
+                // TODO: #12 Fix whatever the fuck this is
                 response(`INFO ${currentTick - prevTick} TPS`)
             },20);
         }

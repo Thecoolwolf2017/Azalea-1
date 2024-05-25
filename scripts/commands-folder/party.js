@@ -6,7 +6,7 @@ export default function partyCommand(commands) {
     commands.addCommand("party", {
         description: "Parties, most likely with 1 person as you have no friends.",
         category: "WIP Party System",
-        async onRun(msg, args, theme, response) {
+        async onRun(msg, args, response) {
             if(!args.length) return response(`ERROR You require a party action: join, create, chat, delete, leave`);
             if(args[0] == "create") {
                 if(parties.has(msg.sender.id))
@@ -28,7 +28,6 @@ export default function partyCommand(commands) {
                 }
                 if(!player) return response(`ERROR Player is not online!`);
                 if(!parties.has(player.id)) return response(`ERROR Player does not own a party.`);
-                let party = parties.get(player.id);
                 partyMembers.set(msg.sender.id, player.id);
                 for(const worldPlayer of world.getPlayers()) {
                     if(partyMembers.has(worldPlayer.id) && partyMembers.get(worldPlayer.id) == player.id)
@@ -53,7 +52,7 @@ export default function partyCommand(commands) {
     commands.addCommand("pc", {
         description: "Party chat",
         category: "WIP Party System",
-        async onRun(msg, args, theme, response) {
+        async onRun(msg, args, response) {
             if(!args.length) return response(`ERROR Please include a message`);
             if(!partyMembers.has(msg.sender.id)) return response(`ERROR You're not in a party, find some friends.`);
             let partyMember = partyMembers.get(msg.sender.id);

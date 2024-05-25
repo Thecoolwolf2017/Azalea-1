@@ -4,7 +4,7 @@ export default function AddServerInfoCommand(commands) {
     commands.addCommand("server-info", {
         description: "View info about the server",
         category: "Info",
-        onRun(msg, args, theme, response) {
+        onRun(theme, response) {
             let db = new Database("Config");
             let ServerName = db.get("ServerName");
             let ServerDescription = db.get("ServerDescription");
