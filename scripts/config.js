@@ -1,1 +1,6 @@
-import{Database as n}from"./db";export function queryConfig(o){return new n("Config").get(o,null)}
+import { Database } from './db';
+
+export function queryConfig(key) {
+    let db = new Database("Config");
+    return db.get(key, null);
+}

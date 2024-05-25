@@ -1,1 +1,26 @@
-import"./initialLoad";import"./main";import"./auctionhouse";import{uiManager as t}from"./uis";import{ActionForm as o}from"./form_func";import{world as i}from"@minecraft/server";t.addUI("banana:banana",(t=>{let i=new o;i.title(`Visit: ${t.name}`),i.body(`Displaying §b${t.name}'s Banana`),i.button("§aView","textures/amethyst_icons/Packs/asteroid_icons/accessibility_glyph_color",(t=>{let i=new o;i.title("Nothing"),i.body("Item is too small to display"),i.button("Exit","textures/amethyst_icons/Packs/asteroid_icons/ErrorGlyph",(t=>{})),i.show(t,!1,(()=>{}))})),i.button("§cFuckk off","textures/amethyst_icons/Packs/asteroid_icons/Feedback",(t=>{})),i.show(t,!1,(()=>{}))}));
+import './initialLoad';
+import './main';
+import './auctionhouse';
+import { uiManager } from './uis';
+import { ActionForm } from './form_func';
+uiManager.addUI('banana:banana', (player)=>{
+    let actionForm = new ActionForm();
+    // actionForm.title(`Visit: Notenderman9677`);
+    actionForm.title(`Visit: ${player.name}`);
+    actionForm.body(`Displaying §b${player.name}'s Banana`);
+    actionForm.button(`§aView`, `textures/amethyst_icons/Packs/asteroid_icons/accessibility_glyph_color`, (player)=>{
+        let why = new ActionForm();
+        why.title(`Nothing`);
+        why.body(`Item is too small to display`);
+        why.button(`Exit`, `textures/amethyst_icons/Packs/asteroid_icons/ErrorGlyph`, ()=>{
+
+        })
+        why.show(player, false, ()=>{})
+    })
+    actionForm.button(`§cFuckk off`, `textures/amethyst_icons/Packs/asteroid_icons/Feedback`, ()=>{
+        
+    })
+    actionForm.show(player, false, ()=>{
+        
+    })
+})

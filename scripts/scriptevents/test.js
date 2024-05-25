@@ -1,1 +1,4 @@
-export function test(e,s){e.world.sendMessage(s)}
+export function test(mc, message) {
+    // console.warn("hi")
+    mc.world.sendMessage(message);
+}

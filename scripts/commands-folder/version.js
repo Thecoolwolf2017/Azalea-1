@@ -1,1 +1,10 @@
-let e="2.2 Beta 69420";export default function o(o){o.addCommand("version",{description:"Get the azalea version",category:"Help Center",onRun(o,n,t,a){a(`TEXT ${t.command}Azalea version ${t.description}${e}\n\n${t.footer}i hope i dont forget to change the version`)}})}
+import '@build';
+export default function addVersionCommand(commands) {
+    commands.addCommand("version", {
+        description: "Get the azalea version",
+        category: "Help Center",
+        onRun(msg, args, theme, response) {
+            response(`TEXT ${theme.command}Azalea version ${theme.description}${build.version}\n\n${theme.footer}i hope i dont forget to change the version`);
+        }
+    })
+}

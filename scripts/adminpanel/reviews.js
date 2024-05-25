@@ -1,27 +1,34 @@
-import { ConfiguratorSub as o } from "../configuratorOptions";
-import { Database as e } from "../db";
-import { ActionForm as r } from "../form_func";
-import t from "../moment";
-import { uiManager as n } from "../uis";
-export const REVIEWS = function () {
-  return (
-    n.addUI("Azalea0.9/ReviewViewer", (o) => {
-      let n = new r(),
-        s = [],
-        i = new e("Reviews").get("Reviews", []),
-        f = 0;
-      for (const o of i) f += o.rating;
-      let m = f / i.length;
-      s.push("§aAverage: §r" + (isNaN(m) ? "No Reviews" : `${m}`)), s.push("");
-      for (const o of i)
-        s.push(`§dFrom §e${o.sentBy} §7§o(${t(o.sentAt).fromNow()})`),
-          s.push(`§a${o.rating}/10`),
-          s.push(`§f${o.moreInfo}`),
-          s.push("");
-      n.button("Ok", null, () => {}),
-        n.body(s.join("\n§r")),
-        n.show(o, !1, () => {});
-    }),
-    new o("§6Reviews", "textures/azalea_icons/10").setCallback(() => {})
-  );
-};
+import { ConfiguratorSub } from '../configuratorOptions';
+import { Database } from '../db';
+import { ActionForm } from '../form_func';
+import moment from '../moment';
+import { uiManager } from '../uis';
+
+export const REVIEWS = function() {
+    uiManager.addUI("Azalea0.9/ReviewViewer", (player)=>{
+        let actionForm = new ActionForm();
+            let text = [];
+            let reviews = new Database("Reviews");
+            let reviewList = reviews.get("Reviews", []);
+            let sum = 0;
+            for(const review of reviewList) {
+                sum += review.rating;
+            }
+            let avg = sum / reviewList.length;
+            text.push(`§aAverage: §r${isNaN(avg) ? "No Reviews" : `${avg}`}`)
+            text.push(``);
+            for(const review of reviewList) {
+                text.push(`§dFrom §e${review.sentBy} §7§o(${moment(review.sentAt).fromNow()})`);
+                text.push(`§a${review.rating}/10`)
+                text.push(`§f${review.moreInfo}`)
+                text.push(``)
+            }
+            actionForm.button("Ok", null, ()=>{})
+            actionForm.body(text.join('\n§r'));
+            actionForm.show(player, false, ()=>{})
+    })
+    return new ConfiguratorSub("§6Reviews", "textures/azalea_icons/10")
+        .setCallback(()=>{
+            
+        })
+}

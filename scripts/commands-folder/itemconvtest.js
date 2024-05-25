@@ -4,7 +4,7 @@ export default function main() {
   commands.addCommand('item-to-json', {
     description: "Converts an item to JSON (DEV)",
     category: "DEV",
-    async onRun(msg, args, theme, response) {
+    async onRun(msg, response) {
       let inventory = msg.sender.getComponent('inventory');
       let container = inventory.container;
       let item = container.getItem(msg.sender.selectedSlot);
@@ -16,7 +16,7 @@ export default function main() {
   commands.addCommand('json-to-item', {
     description: "Converts an item to JSON (DEV)",
     category: "DEV",
-    async onRun(msg, args, theme, response) {
+    async onRun(msg) {
       let inventory = msg.sender.getComponent('inventory');
       let container = inventory.container;
       let item = container.getItem(msg.sender.selectedSlot);

@@ -1,1 +1,40 @@
-import{ConfiguratorSub as e}from"../configuratorOptions";import{Database as t}from"../db";import{ActionForm as o,MessageForm as r}from"../form_func";import{uiManager as n}from"../uis";export const PLAYER_REPORTS=function(){return n.addUI("Azalea0.9/ReportViewer",(e=>{let n=new o;n.body("Select a case"),n.title("Player reports");let s=new t("Reports"),l=s.get("Reports",[]),a=0;l.length||n.button("§4No reports found, exit",null,(()=>{}));for(const e of l)a++,n.button(`Case #${a}\n§8${e.player}, ${e.reason}`,null,((t,o)=>{let n=new r;n.title(`Case #${o}`),n.body(`Player reported: ${e.player}\nReason: ${e.reason}`),n.button1("Ok",(e=>{l.splice(o,1),s.set("Reports",l)})),n.button2("Delete",((e,t)=>{})),n.show(t,!1,((e,t)=>{}))}));n.show(e,!1,((e,t)=>{}))})),new e("§cPlayer reports","textures/azalea_icons/5").setCallback((e=>{}))};
+import { ConfiguratorSub } from '../configuratorOptions';
+import { Database } from '../db';
+import {
+    ActionForm,
+    MessageForm,
+} from '../form_func';
+import { uiManager } from '../uis';
+
+export const PLAYER_REPORTS = function () {
+    uiManager.addUI("Azalea0.9/ReportViewer", player => {
+        let actionForm = new ActionForm();
+        actionForm.body("Select a case");
+        actionForm.title("Player reports");
+        let reportsDb = new Database("Reports");
+        let reports = reportsDb.get("Reports", []);
+        let i = 0;
+        if (!reports.length) {
+            actionForm.button("§4No reports found, exit", null, () => { })
+        }
+        for (const report of reports) {
+            i++;
+            actionForm.button(`Case #${i}\n§8${report.player}, ${report.reason}`, null, (player, i) => {
+                let messageForm = new MessageForm();
+                messageForm.title(`Case #${i}`);
+                messageForm.body(`Player reported: ${report.player}\nReason: ${report.reason}`);
+                messageForm.button1("Ok", () => {
+                    reports.splice(i, 1);
+                    reportsDb.set("Reports", reports);
+                });
+                messageForm.button2("Delete", (_player) => { })
+                messageForm.show(player, false, (_player) => { })
+            });
+        }
+        actionForm.show(player, false, (_player) => { });
+    })
+    return new ConfiguratorSub("§cPlayer reports", "textures/azalea_icons/5")
+        .setCallback(() => {
+
+        })
+}

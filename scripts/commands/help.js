@@ -3,7 +3,7 @@ export default function addHelpCommand(commands) {
     description: "Get some help",
     category: "Help Center",
     usage: "!help <command name | page>",
-    onRun(msg, args, theme, response, commands, prefix) {
+    onRun(args, theme, response, commands, prefix) {
       if (args.length && !/^\d+$/.test(args[0])) {
         let cmd2 = commands.find(_ => _.name == args[0]);
         if (!cmd2) return response(`ERROR Command not found!`);

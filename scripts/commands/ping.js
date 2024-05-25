@@ -3,7 +3,7 @@ export default function addPingCommand(commands) {
     description: "Says pong",
     category: "Useless",
     author: "ZSStudios",
-    onRun(msg, args, theme, response, commands, prefix) {
+    onRun(response) {
       response(`INFO Pong!`);
     }
   });

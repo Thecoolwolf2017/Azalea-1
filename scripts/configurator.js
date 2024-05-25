@@ -1,1 +1,234 @@
-import{Player as e,system as t,world as o}from"@minecraft/server";import{ActionFormData as i,ModalFormData as a}from"@minecraft/server-ui";import{warps as r}from"./warpsapi";import{baseConfigMenu as l}from"./configuratorOptions";import{Database as n}from"./db";import{ActionForm as s,MessageForm as p,ModalForm as f}from"./form_func";import{isAdmin as m}from"./isAdmin";import{openShopUI as u}from"./shopui";import{uiManager as d}from"./uis";import c from"./icons";import{openConfigUI as y}from"./configuratorBase";import{OptionTypes as g,options22 as b}from"./configuratorOptions22";import{DynamicPropertyDatabase as w}from"./dynamicPropertyDb";import{worldTags as h}from"./apis/WorldTags";o.afterEvents.playerSpawn.subscribe((e=>{})),o.afterEvents.playerLeave.subscribe((e=>{if(WelcomeMessageEnabled)for(const e of o.getPlayers())e.playSound("note.bit",{pitch:.5})})),o.beforeEvents.itemUse.subscribe((i=>{i.source instanceof e&&t.run((()=>{if("azalea:floating_text_editor"==i.itemStack.typeId){let e=h.getTags().filter((e=>e.startsWith("floating_text:"))).map((e=>e.replace("floating_text:",""))),t=[];for(const i of e)try{let e=o.getEntity(i);if(!e)continue;t.push(e)}catch{}let a=new s;for(const e of t)a.button(e.nameTag,null,(t=>{let o=new f;o.title("Code Editor"),o.textField("M","Type some text...",e.nameTag),o.show(t,!1,((t,o)=>{(o.formValues[0]||o.formValues[0].toLowerCase().includes("trash"))&&(e.nameTag=o.formValues[0])}))}));a.show(i.source,!1,((e,t)=>{}))}"azalea:player_shop"==i.itemStack.typeId&&d.open("Azalea0.9.1/PlayerShop/Main",i.source),"azalea:boost_feather"==i.itemStack.typeId&&i.source.applyKnockback(i.source.getViewDirection().x,i.source.getViewDirection().z,2.5,1.5),"azalea:tp_requests"==i.itemStack.typeId&&d.open("Azalea2.0/TeleportRequests/Root",i.source),"azalea:warp"==i.itemStack.typeId&&d.open("Azalea1.1/Warps",i.source),"azalea:shop"==i.itemStack.typeId&&u(i.source),"azalea:config_ui"==i.itemStack.typeId&&t.run((()=>{function e(e,t){let o=new f;o.title(t.title);let i=new n("Config"),a=i.allData;for(const e of t.options)if(e.type==g.Dropdown){let t=a[e.id]?a[e.id]:e.default?e.default:"unknownkey",i=e.keys.indexOf(t),r=(e.display[e.keys.indexOf(t)],["Select an option...",...e.display]);o.dropdown(e.label,r.map((e=>({callback(){},option:e}))),i+1)}else if(e.type==g.Slider){let t="string"==typeof a[e.id]&&a[e.id].startsWith("NUM:")?parseInt(a[e.id].substring(4)):null,i=e.min?e.min:1,r=e.max?e.max:10,l=e.step?e.step:1,n=t||(e.default?e.default:i);o.slider(e.label,i,r,l,n)}else if(e.type==g.Toggle){let t=a[e.id]&&"string"==typeof a[e.id]?"true"==a[e.id]:!!e.default&&e.default;o.toggle(e.label,t)}else if(e.type==g.TextField){let t=a[e.id]?a[e.id]:e.default?e.default:void 0;o.textField(e.label,e.placeholder?e.placeholder:"Type something...",t)}o.show(e,!1,((e,o)=>{let r=-1;for(const e of o.formValues){r++;let o=t.options[r];o.type==g.Toggle?a[o.id]=e?"true":"false":o.type==g.Dropdown?a[o.id]=e?0==e?null:o.keys[e-1]:null:o.type==g.TextField?a[o.id]=e||null:o.type==g.Slider&&(a[o.id]=e?`NUM:${e}`:`NUM:${min}`)}for(const e in a)i.set(e,a[e])}))}!function t(o,i){let a=new s;a.title(`${i.title?i.title:"Config"} §7- §bV${i.version}`);for(const r of i.options)r.permRequired&&!m(o,r.permRequired)||a.button(`${r.name}${r.subtext?`\n§7${r.subtext}`:""}`,r.icon?r.icon:null,(o=>{"panel"==r.type?t(o,r.panel):"options_menu"==r.type?e(o,r.panel):r.type==g.ui&&d.open(r.ui,o)}));a.show(o,!1,((e,t)=>{}))}(i.source,b)}))}))}));
+import {
+    Player,
+    system,
+    world,
+} from '@minecraft/server';
+import {
+    ActionFormData,
+    ModalFormData,
+} from '@minecraft/server-ui';
+import { warps } from './warpsapi';
+import { baseConfigMenu } from './configuratorOptions';
+import { Database } from './db';
+import {
+    ActionForm,
+    MessageForm,
+    ModalForm,
+} from './form_func';
+import { isAdmin } from './isAdmin';
+import { openShopUI } from './shopui';
+import { uiManager } from './uis';
+import icons from './icons';
+import { openConfigUI } from './configuratorBase';
+import { OptionTypes, options22 } from './configuratorOptions22';
+import { DynamicPropertyDatabase } from './dynamicPropertyDb';
+import { worldTags } from './apis/WorldTags';
+
+world.afterEvents.playerSpawn.subscribe((e) => {
+})
+world.afterEvents.playerLeave.subscribe(e => {
+    if (!WelcomeMessageEnabled) return;
+    for (const player of world.getPlayers()) {
+        player.playSound("note.bit", {
+            "pitch": 0.5
+        })
+    }
+})
+// do not question the code
+// system.runInterval(() => {
+// let items = world.getDimension('overworld').getEntities({
+//     "type": "item"
+// })
+// for (const item of items) {
+// let itemStack = item.getComponent('item').itemStack
+// item.nameTag = `§d${itemStack.amount}x §r${itemStack.typeId.split(':').slice(1).join(':').split('_').map(_ => `${_[0].toUpperCase()}${_.substring(1)}`).join(' ')}`;
+// itemStack.nameTag = "a"//
+// }
+// }, 20);
+// broken code
+// function openConfigPanel(player, page = 0) {
+//     if(!(player instanceof Player)) return;
+//     let uiMain = new ActionForm();
+//     let configItems = [];
+//     for(const key in baseConfigMenu) {
+//         configItems.push({
+//             name: key,
+//             data: baseConfigMenu[key]
+//         })
+//     }
+//     var arrays = [], size = 3;
+//     for (let i = 0; i < configItems; i += size)
+//        arrays.push(configItems.slice(i, i + size));
+
+//     let pageItems = arrays[page];
+//     for(const item of pageItems) {
+//         let submenu = item.data;
+//         uiMain.button(item.name, submenu.icon ? submenu.icon : null, (player, i)=>{
+//             new MessageForm().body("A").title("ExampleText").button1("BTN1").button2("BTN2").show(player, false, ()=>{})
+//         })
+//     }
+//     let pages = arrays.length;
+//     if(page < pages) {
+//         uiMain.button("Next Page", null, (player,i)=>{
+//             openConfigPanel(player, page+1);
+//         });
+//     }
+//     if(page > 0) {
+//         uiMain.button("Previous Page", null, (player,i)=>{
+//             openConfigPanel(player, page-1);
+//         })
+//     }
+//     uiMain.show(player, false, (player, response)=>{
+
+//     })
+// }
+
+world.beforeEvents.itemUse.subscribe((e) => {
+    if(!(e.source instanceof Player)) return;
+    system.run(() => {
+        if(e.itemStack.typeId == 'azalea:floating_text_editor') {
+            let entities1 = worldTags.getTags().filter(_=>_.startsWith(`floating_text:`)).map(_=>_.replace(`floating_text:`, ``));
+            let entities = [];
+            for(const entity of entities1) {
+                try {
+                    let entity2 = world.getEntity(entity);
+                    if(!entity2) continue;
+                    entities.push(entity2);
+                } catch {}
+            }
+            let form = new ActionForm();
+            for(const entity of entities) {
+                form.button(entity.nameTag, null, (player)=>{
+                    let modalForm = new ModalForm();
+                    modalForm.title("Code Editor");
+                    modalForm.textField("M", "Type some text...", entity.nameTag)
+                    modalForm.show(player, false, (player, response)=>{
+                        if(response.formValues[0] || response.formValues[0].toLowerCase().includes('trash')) entity.nameTag = response.formValues[0];
+                    })
+                })
+            }
+            form.show(e.source, false, (player, response)=>{
+
+            })
+        }
+        if (e.itemStack.typeId == "azalea:player_shop") {
+            uiManager.open("Azalea0.9.1/PlayerShop/Main", e.source)
+        }
+        if(e.itemStack.typeId == "azalea:boost_feather") {
+            e.source.applyKnockback(e.source.getViewDirection().x, e.source.getViewDirection().z, 2.5, 1.5)
+            // e.source.applyKnockback(e.source.getViewDirection().x, e.source.getViewDirection().z, 1, -100)
+        }
+        if(e.itemStack.typeId == "azalea:tp_requests") {
+            uiManager.open("Azalea2.0/TeleportRequests/Root", e.source)
+        }
+        if (e.itemStack.typeId == 'azalea:warp') {
+            uiManager.open("Azalea1.1/Warps", e.source);
+        }
+        // console.warn(e.itemStack.typeId);
+        // if(e.itemStack.typeId == 'minecraft:flint') {
+        //     uiManager.open("Azalea0.9.1/MoneyTransfer", e.source)
+        // }
+        if (e.itemStack.typeId == 'azalea:shop') {
+            openShopUI(e.source);
+        }
+        // if (e.itemStack.typeId == 'minecraft:emerald' && isAdmin(e.source) && e.itemStack.nameTag && e.itemStack.nameTag.toLowerCase() == "admin panel") {
+        //     e.itemStack.nameTag = "§r§bAdmin Panel";
+        //     e.itemStack.setLore(["§aOpens admin panel", "", "§e§oCan only be used by admins"]);
+        //     e.source.getComponent('inventory').container.setItem(e.source.selectedSlot, e.itemStack)
+        //     return e.source.sendMessage("§bClick again to open admin panel!");
+        // }
+        if(e.itemStack.typeId == "azalea:config_ui") {
+            system.run(()=>{
+                function openOptionsPanel(player, panelData) {
+                    let modalForm = new ModalForm();
+                    modalForm.title(panelData.title);
+                    let cfgDb = new Database("Config");
+                    let configData = cfgDb.allData;
+                    for(const option of panelData.options) {
+                        if(option.type == OptionTypes.Dropdown) {
+                            let keySelected = configData[option.id] ? configData[option.id] : option.default ? option.default : "unknownkey";
+                            let displayOptionI = option.keys.indexOf(keySelected);
+                            let displayOption = option.display[option.keys.indexOf(keySelected)];
+                            let displayOptions = ["Select an option...", ...option.display];
+                            modalForm.dropdown(option.label, displayOptions.map(_=>{
+                                return {
+                                    callback() {},
+                                    option: _
+                                }
+                            }), displayOptionI + 1);
+                        } else if(option.type == OptionTypes.Slider) {
+                            let num = typeof configData[option.id] == "string" && configData[option.id].startsWith('NUM:') ? parseInt(configData[option.id].substring(4)) : null
+                            let min = option.min ? option.min : 1;
+                            let max = option.max ? option.max : 10;
+                            let step = option.step ? option.step : 1;
+                            let val = num ? num : option.default ? option.default : min;
+                            modalForm.slider(option.label, min, max, step, val);
+                        } else if(option.type == OptionTypes.Toggle) {
+                            let val = configData[option.id] && typeof configData[option.id] == "string" ? configData[option.id] == "true" ? true : false : option.default ? option.default : false;
+                            modalForm.toggle(option.label, val);
+                        } else if(option.type == OptionTypes.TextField) {
+                            let val = configData[option.id] ? configData[option.id] : option.default ? option.default : undefined;
+                            modalForm.textField(option.label, option.placeholder ? option.placeholder : "Type something...", val);
+                        }
+                    }
+                    modalForm.show(player, false, (player, response)=>{
+                        let i = -1;
+                        for(const option of response.formValues) {
+                            i++;
+                            let configOption = panelData.options[i];
+                            if(configOption.type == OptionTypes.Toggle) {
+                                if(option) {
+                                    configData[configOption.id] = "true";
+                                } else {
+                                    configData[configOption.id] = "false";
+                                }
+                            } else if(configOption.type == OptionTypes.Dropdown) {
+                                if(option) {
+                                    configData[configOption.id] = option == 0 ? null : configOption.keys[option - 1];
+                                } else {
+                                    configData[configOption.id] = null;
+                                }
+                            } else if(configOption.type == OptionTypes.TextField) {
+                                if(option) {
+                                    configData[configOption.id] = option;
+                                } else {
+                                    configData[configOption.id] = null;
+                                }
+                            } else if(configOption.type == OptionTypes.Slider) {
+                                if(option) {
+                                    configData[configOption.id] = `NUM:${option}`;
+                                } else {
+                                    configData[configOption.id] = `NUM:${min}`;
+                                }
+                            }
+                        }
+                        for(const key in configData) {
+                            cfgDb.set(key, configData[key])
+                        }
+                    })
+                }
+                function openPanel(player, panelData) {
+                    let actionForm = new ActionForm();
+                    actionForm.title(`${panelData.title ? panelData.title : "Config"} §7- §bV${panelData.version}`)
+                    for(const panelOption of panelData.options) {
+                        if(panelOption.permRequired && !isAdmin(player, panelOption.permRequired)) continue;
+                        actionForm.button(`${panelOption.name}${panelOption.subtext ? `\n§7${panelOption.subtext}` : ``}`, panelOption.icon ? panelOption.icon : null, (player)=>{
+                            if(panelOption.type == "panel") {
+                                openPanel(player, panelOption.panel);
+                            } else if(panelOption.type == "options_menu") {
+                                openOptionsPanel(player, panelOption.panel);
+                            } else if(panelOption.type == OptionTypes.ui) {
+                                uiManager.open(panelOption.ui, player);
+                            }
+                        });
+                    }
+                    actionForm.show(player, false, (player, response)=>{
+    
+                    })
+                }
+                openPanel(e.source, options22);
+    
+            });
+        }
+    });
+})

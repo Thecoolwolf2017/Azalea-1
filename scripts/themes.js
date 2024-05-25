@@ -1,1 +1,64 @@
-import{Database as e}from"./db";const r=new e("Config");export class Theme{constructor(){this.themes=[],this.themeColorRegex=/^§[(0-9a-z)*?]$/}addTheme({name:e,successColor:r,errorColor:t,infoColor:o,defaultBracketColor:a,defaultRankColor:l,defaultNameColor:s,defaultMessageColor:d,barFull:u,barEmpty:f,barBracket:C,category:m,command:c,description:h,alias:i,descriptionText:n,warningColor:g,darkError:b,darkSuccess:k,darkInfo:D,footer:N,footerAlt:p,header:B,leaderboardNumber:M,leaderboardScore:T}){this.themes.push({descriptionText:n,name:e,successColor:r,errorColor:t,infoColor:o,defaultBracketColor:a,defaultRankColor:l,defaultNameColor:s,defaultMessageColor:d,barFull:u,barEmpty:f,barBracket:C,category:m,command:c,description:h,alias:i,warningColor:g,darkSuccess:k,darkInfo:D,darkError:b,header:B,footer:N,footerAlt:p,leaderboardNumber:M,leaderboardScore:T})}getThemeOld(e){return e>=this.themes.length?this.themes[this.themes.length-1]:e<0?this.themes[0]:this.themes[e]}getTheme(e){let t=JSON.parse(JSON.stringify(this.getThemeOld(e))),o={DefaultNC:r.get("DefaultNC"),DefaultMC:r.get("DefaultMC"),DefaultBC:r.get("DefaultBC")};return o.DefaultNC&&(t.defaultNameColor=o.DefaultNC),o.DefaultMC&&(t.defaultMessageColor=o.DefaultMC),o.DefaultBC&&(t.defaultBracketColor=o.DefaultBC),t}}
+import { Database } from "./db";
+
+const config = new Database("Config")
+export class Theme {
+    constructor() {
+        this.themes = [];
+        this.themeColorRegex = /^§[(0-9a-z)*?]$/;
+    }
+    addTheme({
+        name,
+        successColor,
+        errorColor,
+        infoColor,
+        defaultBracketColor,
+        defaultRankColor,
+        defaultNameColor,
+        defaultMessageColor,
+        barFull,
+        barEmpty,
+        barBracket,
+        category,
+        command,
+        description,
+        alias,
+        descriptionText,
+        warningColor,
+        darkError,
+        darkSuccess,
+        darkInfo,
+        footer,
+        footerAlt,
+        header,
+        leaderboardNumber,
+        leaderboardScore
+    }) {
+        // awful array shit
+        // let allCorrect = [successColor,errorColor,infoColor,defaultBracketColor,defaultRankColor,defaultNameColor,defaultMessageColor,barFull,barEmpty,barBracket, category, command, description, alias,warningColor].every(col => this.themeColorRegex.test(col));
+        let allCorrect = true;
+        if(allCorrect) {
+            // add the theme
+            this.themes.push({descriptionText, name, successColor,errorColor,infoColor,defaultBracketColor,defaultRankColor,defaultNameColor,defaultMessageColor,barFull,barEmpty,barBracket, category, command, description, alias, warningColor, darkSuccess, darkInfo, darkError, header, footer, footerAlt, leaderboardNumber, leaderboardScore});
+        }
+    }
+    getThemeOld(id) {
+        // if theme id is higher than theme array length
+        if(id >= this.themes.length) return this.themes[this.themes.length - 1]
+        // if theme id is lower than 0
+        else if(id < 0) return this.themes[0]
+        // if none are true, return the theme
+        else return this.themes[id];
+    }
+    getTheme(id) {
+        let theme = JSON.parse(JSON.stringify(this.getThemeOld(id)));
+        let opts = {
+            DefaultNC: config.get("DefaultNC"),
+            DefaultMC: config.get("DefaultMC"),
+            DefaultBC: config.get("DefaultBC")
+        }
+        if(opts.DefaultNC) theme.defaultNameColor = opts.DefaultNC;
+        if(opts.DefaultMC) theme.defaultMessageColor = opts.DefaultMC;
+        if(opts.DefaultBC) theme.defaultBracketColor = opts.DefaultBC;
+        return theme;
+    }
+}

@@ -1,1 +1,79 @@
-import{prismarineDb as t}from"./lib/@trash/PrismarineDB/prismarine-db";let i=t.table("Permissions");export function isAdmin(t,e="_LEGACY"){if("_LEGACY"==e)return t.isOp()||t.hasTag("admin");let s=i.findDocuments({type:"role"});for(const i of s)if(t.hasTag(i.data.tag)||"default"==i.data.tag||"admin"==i.data.tag&&t.isOp()){if(i.data.isAdmin)return!0;if(i.data.perms.includes(e))return!0}return!1}export const permList=new class{#t;constructor(){this.#t=[],this.#i()}#i(){i.findFirst({tag:"default",type:"role"})||i.insertDocument({tag:"default",type:"role",isAdmin:!1,isDefault:!0,version:"2.2:0",perms:[]}),i.findFirst({tag:"admin",type:"role"})||i.insertDocument({tag:"admin",type:"role",version:"2.2:0",isAdmin:!0,perms:[]})}addPermission(t,i){this.#t.push({displayName:t,id:i})}getList(){return this.#t}};export{i as permissionDb};
+// the old isAdmin() will be missed :(
+import { prismarineDb } from "./lib/@trash/PrismarineDB/prismarine-db";
+
+let permissionDb = prismarineDb.table("Permissions");
+
+// checks if the player can do shit
+export function isAdmin(player, permission = "_LEGACY") {
+    if(permission == "_LEGACY") return player.isOp() || player.hasTag("admin");
+
+    let documents = permissionDb.findDocuments({
+        type: "role"
+    });
+
+    for(const doc of documents) {
+        if((player.hasTag(doc.data.tag) || doc.data.tag == "default") || (doc.data.tag == "admin" && player.isOp())) {
+            if(doc.data.isAdmin) return true;
+            if(doc.data.perms.includes(permission)) return true;
+        }
+    }
+
+    return false;
+}
+
+class PermissionList {
+    #permList;
+
+    constructor() {
+        this.#permList = [];
+        this.#initialLoad()
+    }
+
+    #initialLoad() {
+        function createAdminRole() {
+            let role = permissionDb.findFirst({
+                tag: "admin",
+                type: "role"
+            })
+            if(!role) {
+                permissionDb.insertDocument({
+                    tag: "admin",
+                    type: "role",
+                    version: "2.2:0",
+                    isAdmin: true,
+                    perms: []
+                })
+            }
+        }
+        function createDefaultRole() {
+            let role = permissionDb.findFirst({
+                tag: "default",
+                type: "role"
+            })
+            if(!role) {
+                permissionDb.insertDocument({
+                    tag: "default",
+                    type: "role",
+                    isAdmin: false,
+                    isDefault: true,
+                    version: "2.2:0",
+                    perms: []
+                })
+            }
+        }
+        createDefaultRole();
+        createAdminRole();
+    }
+
+    addPermission(displayName, id) {
+        this.#permList.push({displayName, id});
+    }
+    
+    getList() {
+        return this.#permList;
+    }
+}
+
+export const permList = new PermissionList();
+
+export { permissionDb };

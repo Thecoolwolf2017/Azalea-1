@@ -1,4 +1,3 @@
-import { commands } from "../commands";
 import { Database } from "../db";
 import { world, system } from '@minecraft/server';
 import { isAdmin } from "../isAdmin";
@@ -11,7 +10,7 @@ export default function AddTagCmdManager(commands) {
         commands.addCommand(cmd.name, {
           description: "Tagcmd Description",
           category: "Tagcmds",
-          onRun(msg, args, theme, response) {
+          onRun(msg, response) {
             let player = msg.sender;
             let tag = cmd.tag;
             system.run(function () {
@@ -66,7 +65,7 @@ export default function AddTagCmdManager(commands) {
             commands.addCommand(args[1], {
               description: "Tagcmd Description",
               category: "Tagcmds",
-              onRun(msg, args, theme, response) {
+              onRun(msg, response) {
                 let player = msg.sender;
                 let tag = tagName;
                 system.run(function () {

@@ -1,1 +1,107 @@
-import{system as e,world as n}from"@minecraft/server";import{Database as a}from"../db";import{isAdmin as t}from"../isAdmin";import r from"../moment";let i=[];function o(e){const n=Number(e.replace(/[^-.0-9]+/g,""));return e=e.replace(/\s+/g,""),/\d+(?=y)/i.test(e)?3154e7*n:/\d+(?=w)/i.test(e)?6048e5*n:/\d+(?=d)/i.test(e)?864e5*n:/\d+(?=h)/i.test(e)?36e5*n:/\d+(?=m)/i.test(e)?6e4*n:/\d+(?=s)/i.test(e)?1e3*n:/\d+(?=ms|milliseconds?)/i.test(e)?n:void 0}function s(e){var n=/[^\s"]+|"([^"]*)"/gi,a=[];do{var t=n.exec(e);null!=t&&a.push(t[1]?t[1]:t[0])}while(null!=t);return a}n.afterEvents.worldInitialize.subscribe((()=>{let e=new a("Bans");i=JSON.parse(e.get("bans")?e.get("bans"):"[]")})),n.afterEvents.playerSpawn.subscribe((n=>{let t=i.find((e=>n.player.id==e.playerId||n.player.name==e.playerName)),o=i.findIndex((e=>n.player.id==e.playerId||n.player.name==e.playerName));if(t){if(console.warn(t.expires,Date.now()),t.expires>0&&Date.now()<t.expires){let a=n.player;return void e.run((()=>{a.runCommand(`kick "${a.name}" §cYou have been banned until ${r(t.expires).format("MMMM Do YYYY, h:mm:ss a")} UTC!\n\n§r§eYou can try contacting an admin to get unbanned if you think the ban wasnt fair`)}))}if(t.expires>0&&Date.now()>t.expires){i.splice(o,1),new a("Bans").set("bans",JSON.stringify(i))}else if(0==t.expires){let a=n.player;e.run((()=>{a.runCommand(`kick "${a.name}" §cYou have been banned permanently!\n\n§r§eYou can try contacting an admin to get unbanned if you think the ban wasnt fair`)}))}n.player.sendMessage("You are banned!")}}));export default function d(e){e.addCommand("ban",{description:"Ban a player",admin:!0,category:"Moderation",async onRun(e,d,l,m){let u=s(d.join(" "));if(!u.length)return m("ERROR You must include a player name. If the player you're trying to ban has spaces in their name, just add quotes around their name.");let p,y=u[0];for(const e of n.getPlayers())if(e.name.toLowerCase()==y.toLowerCase()){p=e;break}if(!p)return m("ERROR Could not find player. Make sure the player you're trying to ban is online and if they have spaces in their username, put quotes around their name in the command.");if(t(p))return m("ERROR Cant ban admins");let c=new a("Bans"),f=JSON.parse(c.get("bans")?c.get("bans"):"[]"),b=0,h="Banned player permanently!";if(u.length>1){let e=o(u[1]);if(!e)return m("ERROR Invalid time string.");h=`Banned player for ${function(e){return`${Math.floor(e/36e5)}h ${Math.floor(e%36e5/6e4)}m ${Math.floor(e%6e4/1e3)}s`}(e)}`,b=Date.now()+e}f.push({expires:b,playerId:p.id,playerName:p.name,bannedAt:Date.now()});p.name;let g=`${r(b).format("MMMM Do YYYY, h:mm:ss a")} UTC`;return p.runCommand(`kick "${p.name}" \n§cYou have been banned${b>0?" until "+g+"!":""}\n\n§r§eYou can try contacting an admin to get unbanned if you think the ban wasnt fair`),c.set("bans",JSON.stringify(f)),i=f,m(`SUCCESS ${h}`)}}),e.addCommand("unban",{description:"Unban a player",admin:!0,category:"Moderation",async onRun(e,n,t,r){let o=s(n.join(" "));if(!o.length)return r("ERROR You must include a player name. If the player you're trying to ban has spaces in their name, just add quotes around their name.");let d=new a("Bans"),l=JSON.parse(d.get("bans")?d.get("bans"):"[]"),m=l.find((e=>e.playerName.toLowerCase()==o[0].toLowerCase())),u=l.find((e=>e.playerName.toLowerCase()==o[0].toLowerCase()));return m?(l.splice(u,1),i=l,d.set("bans",JSON.stringify(l)),r("SUCCESS Unbanned player!")):r("ERROR Player not banned!")}}),e.addCommand("banlist",{description:"List all bans",admin:!0,category:"Moderation",async onRun(e,n,t,r){let o=new a("Bans"),s=JSON.parse(o.get("bans")?o.get("bans"):"[]");i=s;let d=[`${t.category}<-=- ${t.command}Bans ${t.category}-=->`];for(const e of i){let n=new Date(e.expires),a=`${["January","February","March","April","May","June","July","August","September","October","November","December"][n.getMonth()]} ${n.getDate()}, ${n.getHours()}:${n.getMinutes()}:${n.getSeconds()}`;d.push(`${t.command}${e.playerName} ${t.description}Expires ${e.expires>0?a:"Never"}`)}i.length||d.push(`${t.errorColor}There are no bans...`),r(`TEXT ${d.join("\n§r")}`)}})}
+import {
+  system,
+  world,
+} from '@minecraft/server';
+
+import { Database } from '../db';
+import moment from '../moment';
+
+let cachedBans = [];
+world.afterEvents.worldInitialize.subscribe(()=>{
+    let bansDb = new Database("Bans");
+    cachedBans = JSON.parse(bansDb.get("bans") ? bansDb.get("bans") : "[]");
+})
+world.afterEvents.playerSpawn.subscribe(eventData=>{
+    // return;
+    let ban = cachedBans.find(_=>eventData.player.id==_.playerId || eventData.player.name==_.playerName);
+    let banIndex = cachedBans.findIndex(_=>eventData.player.id==_.playerId || eventData.player.name==_.playerName);
+    if(ban) {
+        console.warn(ban.expires, Date.now())
+        if(ban.expires > 0 && Date.now() < ban.expires) {
+            let player = eventData.player;
+            system.run(()=>{
+                player.runCommand(`kick "${player.name}" §cYou have been banned until ${moment(ban.expires).format('MMMM Do YYYY, h:mm:ss a')} UTC!\n\n§r§eYou can try contacting an admin to get unbanned if you think the ban wasnt fair`);
+            })
+            return;
+        } else if(ban.expires > 0 && Date.now() > ban.expires) {
+            cachedBans.splice(banIndex, 1);
+            let bansDb = new Database("Bans");
+            bansDb.set("bans", JSON.stringify(cachedBans));
+        } else if(ban.expires == 0) {
+            let player = eventData.player;
+            system.run(()=>{
+                player.runCommand(`kick "${player.name}" §cYou have been banned permanently!\n\n§r§eYou can try contacting an admin to get unbanned if you think the ban wasnt fair`);
+            })
+        }
+        eventData.player.sendMessage("You are banned!");
+    }
+})
+;
+;
+;
+;
+//The parenthesis in the regex creates a captured group within the quotes
+function betterArgs(myString) {
+    var myRegexp = /[^\s"]+|"([^"]*)"/gi;
+    var myArray = [];
+    
+    do {
+        //Each call to exec returns the next regex match as an array
+        var match = myRegexp.exec(myString);
+    } while (match != null);
+
+    return myArray;
+}
+export default function banCommand(commands) {
+    commands.addCommand("ban", {
+        admin: true,
+        category: "Moderation",
+    })
+
+("unban", {
+        description: "Unban a player",
+        admin: true,
+        category: "Moderation",
+        async onRun(worseArgs, response) {
+            let args = betterArgs(worseArgs.join(' '));
+            if(!args.length) return response(`ERROR You must include a player name. If the player you're trying to ban has spaces in their name, just add quotes around their name.`);
+            let bansDb = new Database("Bans");
+            let bansList = JSON.parse(bansDb.get("bans") ? bansDb.get("bans") : "[]");
+            let responseText = `Unbanned player!`;
+            let ban = bansList.find(_=>_.playerName.toLowerCase() == args[0].toLowerCase());
+            let banIndex = bansList.find(_=>_.playerName.toLowerCase() == args[0].toLowerCase());
+            if(ban) {
+                bansList.splice(banIndex, 1);
+            } else {
+                return response(`ERROR Player not banned!`);
+            }
+            cachedBans = bansList;
+            bansDb.set("bans", JSON.stringify(bansList));
+            return response(`SUCCESS ${responseText}`);
+        }
+    })
+
+    commands.addCommand('banlist', {
+        description: "List all bans",
+        admin: true,
+        category: "Moderation",
+        async onRun(response) {
+            let bansDb = new Database("Bans");
+            let bansList = JSON.parse(bansDb.get("bans") ? bansDb.get("bans") : "[]");
+            cachedBans = bansList;
+
+            let text = [`${theme.category}<-=- ${theme.command}Bans ${theme.category}-=->`];
+
+            for(const ban of cachedBans) {
+                let date = new Date(ban.expires);
+                let months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                let endStr = `${months[date.getMonth()]} ${date.getDate()}, ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+                text.push(`${theme.command}${ban.playerName} ${theme.description}Expires ${ban.expires > 0 ? endStr : "Never"}`);
+            }
+
+            if(!cachedBans.length) text.push(`${theme.errorColor}There are no bans...`);
+
+            response(`TEXT ${text.join('\n§r')}`)
+        }
+    })
+}

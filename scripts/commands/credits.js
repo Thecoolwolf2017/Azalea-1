@@ -2,11 +2,12 @@ export default function addCreditsCommand(commands) {
   commands.addCommand("credits", {
     description: "Who helped make azelea",
     category: "Help Center",
-    onRun(msg, args, theme, response, commands, prefix) {
+    onRun(theme, response) {
       let text = [
         `${theme.category}<-=- ${theme.command}Credits ${theme.category}-=->`,
-        `${theme.command}TRASH ${theme.description}Main developer`,
+        `${theme.command}TRASH ${theme.description}developer/Owner`,
         `${theme.command}ZSStudios ${theme.description}Miscellaneous developer (Made some commands)`,
+        `${theme.command}Lozenda ${theme.description}Lead Developer`,
       ];
       response(`TEXT ${text.join("\n")}`);
     },

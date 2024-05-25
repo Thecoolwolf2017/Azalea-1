@@ -1,11 +1,9 @@
 desktop.ini
 releasedata.txt
 build.json
-release
 .vscode
 .idea
 output
-scripts
 
 # Logs
 logs
