@@ -1,9 +1,22 @@
 import * as mc from '@minecraft/server';
-//import * as extensions from './extensions';
+import blockEditor from './extensions/blockEditor';
+import chest_guis from './extensions/chest_guis';
+import combat_log from './extensions/combat_log';
+import command_detection from './extensions/command_detection';
+import configurator from './extensions/configurator';
 import { beforeChat } from './beforeChat';
 import { commands } from './commands';
 import { eventMgr } from './eventManager';
-//import * as CommandsAdvanced from './commands-folder/Advanced';
+import credits from 'commands-folder/commands/credits';
+import help from 'commands-folder/commands/help';
+import ping from 'commands-folder/commands/ping';
+import realhack from 'commands-folder/commands/realhack';
+import rolldice from 'commands-folder/commands/rolldice';
+import tagcmd from 'commands-folder/commands/tagcmd';
+import test from 'commands-folder/commands/test';
+import event1 from 'commands-folder/events/event1';
+import eventscriptevent from 'commands-folder/events/scriptevent';
+import scriptevents from 'commands-folder/scriptevents/test';
 //import * as CommandsAzalea from './commands-folder/Azalea';
 //import * as CommandsConverter from './commands-folder/Converter';
 //import * as CommandsDev from './commands-folder/Dev';
@@ -22,34 +35,62 @@ import './leaderboardHandler';
 import './legacyPlayerShopNoChestUI';
 import './sellshop';
 import { permList } from './isAdmin';
-//import * as Events from './events';
+//import Events from './events';
 import { Database } from './db';
 //import { uiManager } from './uis';
 import './iconExtension';
+class BindManager {
+    constructor() {
+        this.binds = new Map();
+        mc.world.beforeEvents.itemUse.subscribe(e => {
+            if (e.source.typeId != "minecraft:player") return;
 
-//let flags = new Map();
+            if (this.binds.has(e.itemStack.typeId)) {
+                e.cancel = true;
 
-//class ExtensionAPI {
+                this.binds.get(e.itemStack.typeId)(e.source);
+            }
+        })
+    }
 
-  //  registerModule(name, mainClass) {
-    //    eventMgr.emit("RegisterModule", { name, mainClass });
-    //}
+    setBind(typeId, callback) {
+        this.binds.set(typeId, callback);
+    }
 
-    //getFlag(name) {
-      //  if(flags.has(name)) return flags.get(name)
-        //return false;
-    //}
-    //setFlag(name, bool) {
-      //  flags.set(name, bool);
-    //}
-//}
+    removeBind(typeId) {
+        if (this.binds.has(typeId)) this.binds.delete(typeId);
+    }
+}
+
+let bindManager = new BindManager();
+
+let flags = new Map();
+class ExtensionAPI {
+    #namespace
+    constructor(namespace) {
+        this.#namespace = namespace;
+        this.bindManager = bindManager;
+    }
+    registerModule(name, mainClass) {
+        eventMgr.emit("RegisterModule", { name, mainClass });
+    }
+
+    getFlag(name) {
+        if(flags.has(name)) return flags.get(name)
+        return false;
+    }
+    setFlag(name, bool) {
+        flags.set(name, bool);
+    }
+}
+let extensions = [blockEditor,chest_guis,combat_log,command_detection,configurator];
 
 class Azalea {
     #modules;
 
     constructor() {
-        //this.extensions = [];
-        //this.#loadExtensions();
+        this.extensions = [];
+        this.#loadExtensions();
         this.#loadLegacyModules();
         this.#loadEvents();
         this.#loadCommands();
@@ -164,16 +205,16 @@ class Azalea {
         this.#modules.push({ name, mainClass });
     }
 
-    //#loadExtensions() {
-      //  for (const extension of Object.values(extensions)) {
-        //    this.loadExtension(extension);
-        //}
-    //}
+    #loadExtensions() {
+        for (const extension of Object.values(extensions)) {
+            this.loadExtension(extension);
+        }
+    }
 
-    //loadExtension(Extension) {
-      //  let ext = new Extension.main(new ExtensionAPI(Extension.namespace));
-        //this.extensions.push({namespace: Extension.namespace, ext});
-    //}
+    loadExtension(Extension) {
+      let ext = new Extension.main(new ExtensionAPI(Extension.namespace));
+        this.extensions.push({namespace: Extension.namespace, ext});
+    }
     #loadEvents2() {
         mc.system.afterEvents.scriptEventReceive.subscribe(e=>{
             if(e.sourceType == mc.ScriptEventSource.Entity) {
